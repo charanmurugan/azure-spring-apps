@@ -35,6 +35,7 @@ jobs:
       - name: Deploy to Azure Spring Apps
         run: |
           az spring app deploy \
+            --service learning
             --name ${{ secrets.AZURE_SPRING_APP_NAME }} \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --jar-path target/*.jar  # Make sure your JAR file path is correct
