@@ -1,0 +1,40 @@
+name: Deploy Spring Boot App to Azure
+
+on:
+  push:
+    branches:
+      - main   # Trigger on push to main branch (change if necessary)
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'  # Change to your required Java version
+          distribution: 'adoptopenjdk'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Deploy to Azure Spring Apps
+        run: |
+          az spring app deploy \
+            --name ${{ secrets.AZURE_SPRING_APP_NAME }} \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --jar-path target/*.jar  # Make sure your JAR file path is correct
+
+      - name: Logout from Azure
+        run: az logout
